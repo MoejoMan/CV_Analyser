@@ -12,8 +12,6 @@ CLASS Contactdetails(Object):
 
 
 DEFINE FUNCTION Main(no arguments):
-    // Function is entry point of program
-    // Does not return anything | just executes
 
     File = "path/to/resume"
 
