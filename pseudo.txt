@@ -1,1 +1,11 @@
+DEFINE FUNCTION Main(arguments):
+    // Function is entry point of program
+    // Does not return anything | just executes
 
+    File = "path/to/resume"
+    Filetype = File["."*]
+    if Filetype = .txt THEN
+
+    IF resume is valid THEN
+        CALL display(resume)  // Display resume in console
+       END IF
