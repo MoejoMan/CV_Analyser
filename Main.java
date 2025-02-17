@@ -48,3 +48,20 @@ public class Main {
         return content.toString();
     }
 }
+
+public static void extractContacts(String resumeText) {
+    Pattern emailPattern = Pattern.compile("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}\\b");
+    Matcher emailMatcher = emailPattern.matcher(resumeText);
+    if (emailMatcher.find()) {
+        System.out.println("Email found: " + emailMatcher.group());
+    }
+
+    Pattern phonePattern = Pattern.compile"^(((\\+44\\s?\\d{4}|\\(?0\\d{4}\\)?)\\s?\\d{3}\\s?\\d{3})|((\\+44\\s?\\d{3}|\\(?0\\d{3}\\)?)\\s?\\d{3}\\s?\\d{4})|((\\+44\\s?\\d{2}|\\(?0\\d{2}\\)?)\\s?\\d{4}\\s?\\d{4}))(\s?\\#(\d{4}|\d{3}))?$");
+    Matcher phoneMatcher = phonePattern.matcher(resumeText);
+    if (phoneMatcher.find()) {
+        System.out.println("Phone number found: " + phoneMatcher.group());
+    }
+
+}
+//^[A-Za-zÀ-ÿ]+(?:[-'\s][A-Za-zÀ-ÿ]+)*$
+
