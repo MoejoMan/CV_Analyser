@@ -26,7 +26,7 @@ public class Main {
         for (String skill : skills) {
             Pattern pattern = Pattern.compile("\\b" + skill + "\\b", Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(resumeText);
-            //if the skill is found in the resume, it is printed, otherwise not found message is printed.
+            //if the skill is found in the resume, it is printed.
             if (matcher.find()) {
                 System.out.println("Found skill: " + skill);
             } else {
@@ -36,7 +36,7 @@ public class Main {
     }
 
 
-// Below are the regex which allows the program to identify pre-determined patterns in text, matching it to the relevant information in a CV, allowing the program to analyse its parts.
+// Below are the regex which allows the program to identify pre determined patterns in text, matching it to the relevant information in a CV, allowing the program to analyse its parts.
 
 //regex to find an email in the file, it doesn't validate the email, rather simply checks for ones existence within the file.
 public static void extractEmail(String resumeText) {
@@ -89,6 +89,7 @@ public static void extractEducation(String resumeText) {
     } else {
         System.out.println("No Education found.");
     }
+}
 
 //regex to find work experience details in the file
 public static void extractWorkExperience(String resumeText) {
