@@ -20,7 +20,8 @@ DEFINE FUNCTION Main(no arguments):
             Resumetext = READFILE(File)
             Name, Email, Phone = ResumeText
             TXT = Contactdetails(Email, Phone, Name)
-
+        CATCH:
+            print(File, "missing contact details")
     ELIF Filetype = "pdf" THEN
 
     ELIF Filetype = "docx" THEN
