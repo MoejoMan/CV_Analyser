@@ -1,11 +1,31 @@
-DEFINE FUNCTION Main(arguments):
+global score = 0
+
+CLASS Contactdetails(Object):
+    DEFINE FUNCTION __INIT__(self, Email, Phone):
+        self.Email = Email
+        self.Phone = Phone
+
+    def extractor(self):
+        self.Email = IF Email CONTAINS "@" AND Email[*.] AND Email[.*]
+        self.Phone = IF Phone CONTAINS "+44" AND Phone CONTAINS "+44"[.4.6]
+
+
+
+DEFINE FUNCTION Main(no arguments):
     // Function is entry point of program
     // Does not return anything | just executes
 
     File = "path/to/resume"
-    Filetype = File["."*]
-    if Filetype = .txt THEN
 
-    IF resume is valid THEN
-        CALL display(resume)  // Display resume in console
-       END IF
+    Filetype = File["."*]
+
+    IF Filetype = "txt" THEN
+
+    ELIF Filetype = "pdf" THEN
+
+    ELIF Filetype = "docx" THEN
+
+    ELSE:
+        print("Invalid filetype")
+
+
