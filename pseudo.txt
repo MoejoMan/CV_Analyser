@@ -1,23 +1,25 @@
 global score = 0
 
 CLASS Contactdetails(Object):
-    DEFINE FUNCTION __INIT__(self, Email, Phone):
+    DEFINE FUNCTION __INIT__(self, Email, Phone, Name):
         self.Email = Email
         self.Phone = Phone
+        self.Name = Name
 
     def extractor(self):
         self.Email = IF Email CONTAINS "@" AND Email[*.] AND Email[.*]
         self.Phone = IF Phone CONTAINS "+44" AND Phone CONTAINS "+44"[.4.6]
-
-
+        self.Name = IF Name CONTAINS "^[A-Za-zÀ-ÿ]+(?:[-'\s][A-Za-zÀ-ÿ]+)*$"
 
 DEFINE FUNCTION Main(no arguments):
-
     File = "path/to/resume"
-
     Filetype = File["."*]
 
     IF Filetype = "txt" THEN
+        TRY:
+            Resumetext = READFILE(File)
+            Name, Email, Phone = ResumeText
+            TXT = Contactdetails(Email, Phone, Name)
 
     ELIF Filetype = "pdf" THEN
 
