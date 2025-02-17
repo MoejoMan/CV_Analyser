@@ -35,6 +35,9 @@ public class Main {
         }
     }
 
+
+// Below are the regex which allows the program to identify pre-determined patterns in text, matching it to the relevant information in a CV, allowing the program to analyse its parts.
+
 //regex to find an email in the file, it doesn't validate the email, rather simply checks for ones existence within the file.
 public static void extractEmail(String resumeText) {
     Pattern emailPattern = Pattern.compile("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}\\b");
@@ -68,6 +71,53 @@ public static void extractName(String resumeText) {
         System.out.println("No name found.");
     }
 }
+
+//regex to find education details in the file
+public static void extractEducation(String resumeText) {
+    Pattern educationPattern = Pattern.compile("(?i)(education|academic background|qualifications|degree)(.*?)(?:experience|skills|work|certifications|$)", Pattern.DOTALL); //DOTALL allows for line breaks which is useful if the section spans multiple lines
+    Matcher educationMatcher = educationPattern.matcher(resumeText);
+    if (educationMatcher.find()) {
+        String educationSection = educationMatcher.group(2);  // This extracts the content between headers and other sections
+        System.out.println("Education Section: " + educationSection);
+        
+        // This extracts details like degree and university
+        Pattern degreePattern = Pattern.compile("\\b(Bachelor|Master|PhD|Degree)\\b.*?\\b(University|College)\\b", Pattern.CASE_INSENSITIVE);
+        Matcher degreeMatcher = degreePattern.matcher(educationSection);
+        while (degreeMatcher.find()) {
+            System.out.println("Degree: " + degreeMatcher.group());
+        }
+    } else {
+        System.out.println("No Education found.");
+    }
+
+//regex to find work experience details in the file
+public static void extractWorkExperience(String resumeText) {
+    Pattern workExperiencePattern = Pattern.compile("(?i)(experience|work history|professional experience)(.*?)(?:education|skills|certifications|$)", Pattern.DOTALL); //DOTALL allows for line breaks which is useful if the section spans multiple lines
+    Matcher workExperienceMatcher = workExperiencePattern.matcher(resumeText);
+    if (workExperienceMatcher.find()) {
+        String workExperienceSection = workExperienceMatcher.group(2);  // This extracts the content between headers and other sections
+        System.out.println("Work Experience Section: " + workExperienceSection);
+
+        // This extracts details like job titles, companies, and dates
+        Pattern jobTitlePattern = Pattern.compile("(\\b(?:Software|Senior|Junior)?\\s?[A-Za-z]+(?:\\s[A-Za-z]+)?\\s?Developer|Engineer|Manager\\b)", Pattern.CASE_INSENSITIVE);
+        Matcher jobTitleMatcher = jobTitlePattern.matcher(workExperienceSection);
+        while (jobTitleMatcher.find()) {
+            System.out.println("Job Title: " + jobTitleMatcher.group());
+        }
+
+        //This extracts details like the Company Name
+        Pattern companyPattern = Pattern.compile("\\b(?:at|for)\\s([A-Za-z]+(?:\\s[A-Za-z]+)*)\\b", Pattern.CASE_INSENSITIVE); 
+        Matcher companyMatcher = companyPattern.matcher(workExperienceSection);
+        while (companyMatcher.find()) {
+            System.out.println("Company: " + companyMatcher.group(1));
+        }
+    } else {
+        System.out.println("No Work Experience found.");
+    }
+}
+
+
+//regex section ends
 
 //tis is what reads the file.
 public static String readFile(String filePath) {
