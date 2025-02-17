@@ -3,30 +3,34 @@ import java.util.regex.*;
 
 public class Main {
     public static void main(String[] args) {
-        //defined file path for the resume, this is the path of the file in my computer.
-        String filePath = "C:\\Users\\jhg56\\Documents\\resume.txt";
-        String resumeText = readFile(filePath);
+        String resumeText = readFile(); //to the lads, neither of these will work rn cos i wanna make a few proper resumes and job descriptions to test first. ps: we DO need to have random job descriptions unfortunately, its in the brief. Static job description is a no
+        String jobDescriptionText = readFile();
 
-        //if the file is read successfully, print the contents of the file and extract skills.
+        // This is what determines whether the resume and job descriptions are valid within the program and have any appropriate skills to list
         if (resumeText != null) {
-            System.out.println("Resume Contents:\n" + resumeText);
-            extractSkills(resumeText);
-            extractEmail(resumeText);
-            extractPhone(resumeText);
-            extractName(resumeText);
+            extractSkills(resumeText, "Resume");
         } else {
             System.out.println("Failed to read the resume.");
         }
+    
+        if (jobDescriptionText != null) {
+            extractSkills(jobDescriptionText, "Job Description");
+        } else {
+            System.out.println("Failed to read the job description.");
+        }
     }
 
-    public static void extractSkills(String resumeText) {
-        //skills to be searched in the resume
-        String[] skills = {"Java", "Python", "SQL", "JavaScript"};
 
+    public static void extractSkills(String text, String sourceType) {
+        // these are the skills to be searched in the resume and job description
+        String[] skills = {"Java", "Python", "C++", "SQL", "JavaScript", "PHP", "HTML", "Git", "AWS", "Docker"};
+    
+        System.out.println("Extracting skills from " + sourceType + ":");
+    
+        // This loops through the skills and checks whether they are in the job description or resume
         for (String skill : skills) {
             Pattern pattern = Pattern.compile("\\b" + skill + "\\b", Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(resumeText);
-            //if the skill is found in the resume, it is printed.
+            Matcher matcher = pattern.matcher(text);
             if (matcher.find()) {
                 System.out.println("Found skill: " + skill);
             } else {
@@ -131,7 +135,6 @@ public static String readFile(String filePath) {
     } catch (IOException e) {
         System.out.println("Error reading file: " + e.getMessage());
         return null; 
-        // this returns null if the file is not read successfully.
     }
     return content.toString();
     }
