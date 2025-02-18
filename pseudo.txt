@@ -7,9 +7,9 @@ CLASS Contactdetails(Object):
         self.Name = Name
 
     def extractor(self):
-        self.Email = IF Email CONTAINS "@" AND Email[*.] AND Email[.*]
-        self.Phone = IF Phone CONTAINS "+44" AND Phone CONTAINS "+44"[.4.6]
-        self.Name = IF Name CONTAINS "^[A-Za-zÀ-ÿ]+(?:[-'\s][A-Za-zÀ-ÿ]+)*$"
+        self.Email = IF Email CONTAINS PATTERN [A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}
+        self.Phone = IF Phone CONTAINS PATTERN ^((\+44)|(0)) ?\d{4} ?\d{6}$]
+        self.Name = IF Name CONTAINS PATTERN ^[A-Za-zÀ-ÿ]+(?:[-'\s][A-Za-zÀ-ÿ]+)*$
 
 DEFINE FUNCTION Main(no arguments):
     File = input("Path to resume")
