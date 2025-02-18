@@ -7,21 +7,46 @@ CLASS Contactdetails(Object):
         self.Name = Name
 
     def extractor(self):
-        self.Email = IF Email CONTAINS "@" AND Email[*.] AND Email[.*]
-        self.Phone = IF Phone CONTAINS "+44" AND Phone CONTAINS "+44"[.4.6]
-        self.Name = IF Name CONTAINS "^[A-Za-zÀ-ÿ]+(?:[-'\s][A-Za-zÀ-ÿ]+)*$"
+        self.Email = IF Email CONTAINS PATTERN [A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}
+        IF self.Email == NULL THEN
+            print("No Email found")
+        ELSE:
+            print(self.Email)
+
+        self.Phone = IF Phone CONTAINS PATTERN ^((\+44)|(0)) ?\d{4} ?\d{6}$]
+        IF self.Phone == NULL THEN
+                    print("No phone number found")
+        ELSE:
+            print(self.Phone)
+
+        self.Name = IF Name CONTAINS PATTERN ^[A-Za-zÀ-ÿ]+(?:[-'\s][A-Za-zÀ-ÿ]+)*$
+        IF self.Name == NULL THEN
+                    print("No name found")
+        ELSE:
+            print(self.Name)
 
 DEFINE FUNCTION Main(no arguments):
-    File = "path/to/resume"
+    File = input("Path to resume")
     Filetype = File["."*]
 
     IF Filetype = "txt" THEN
         TRY:
             Resumetext = READFILE(File)
-            Name, Email, Phone = ResumeText
-            TXT = Contactdetails(Email, Phone, Name)
+
+            IF Resumetext == NULL THEN
+                print("Failed to read:", File)
+                END
+            ELSE:
+                TRY:
+                    Name, Email, Phone = ResumeText
+                    TXT = Contactdetails()
+                    TXT.extractor(Name, Email, Phone)
+
+                CATCH:
+                    print("Error extracting contact details:", File)
         CATCH:
-            print(File, "missing contact details")
+            print("Could not access:", File)
+
     ELIF Filetype = "pdf" THEN
 
     ELIF Filetype = "docx" THEN
