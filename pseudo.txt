@@ -12,7 +12,7 @@ CLASS Contactdetails(Object):
         self.Name = IF Name CONTAINS "^[A-Za-zÀ-ÿ]+(?:[-'\s][A-Za-zÀ-ÿ]+)*$"
 
 DEFINE FUNCTION Main(no arguments):
-    File = "path/to/resume"
+    File = input("Path to resume")
     Filetype = File["."*]
 
     IF Filetype = "txt" THEN
@@ -22,6 +22,7 @@ DEFINE FUNCTION Main(no arguments):
             TXT = Contactdetails(Email, Phone, Name)
         CATCH:
             print(File, "missing contact details")
+
     ELIF Filetype = "pdf" THEN
 
     ELIF Filetype = "docx" THEN
