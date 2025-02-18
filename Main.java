@@ -3,9 +3,10 @@ import java.util.regex.*;
 
 public class Main {
     public static void main(String[] args) {
+        // Resume file path
         String resumeFilePath = "C:\\Users\\jhg56\\Documents\\resume.txt";
 
-        // List of job description files
+        // List of job description file paths
         String[] jobDescriptionFiles = {
                 "C:\\Users\\jhg56\\Documents\\job_description.txt",
                 "C:\\Users\\jhg56\\Documents\\job_description2.txt",
@@ -13,7 +14,7 @@ public class Main {
         };
 
         String resumeText = readFile(resumeFilePath);
-
+        // Extract skills, email, phone, name, education, and work experience from the resume
         if (resumeText != null) {
             extractSkills(resumeText, "Resume");
             extractEmail(resumeText);
@@ -24,7 +25,7 @@ public class Main {
         } else {
             System.out.println("Failed to read the resume.");
         }
-
+        // Extract skills from each job description file
         for (String jobDescriptionFile : jobDescriptionFiles) {
             String jobDescriptionText = readFile(jobDescriptionFile);
             if (jobDescriptionText != null) {
@@ -35,7 +36,7 @@ public class Main {
             }
         }
     }
-
+    // A list of skills to extract from the text
     public static void extractSkills(String text, String sourceType) {
         String[] skills = {"Java", "Python", "C++", "SQL", "JavaScript", "PHP", "HTML", "Git", "AWS", "Docker"};
 
@@ -51,7 +52,7 @@ public class Main {
             }
         }
     }
-
+    // Extract email from the text
     public static void extractEmail(String resumeText) {
         Pattern emailPattern = Pattern.compile("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}\\b");
         Matcher emailMatcher = emailPattern.matcher(resumeText);
@@ -61,7 +62,7 @@ public class Main {
             System.out.println("No email found.");
         }
     }
-
+    // Extract phone number from the text (currently not working)
     public static void extractPhone(String resumeText) {
         Pattern phonePattern = Pattern.compile(
                 "^((\\+44)|(0)) ?\\d{4} ?\\d{6}$"
@@ -73,7 +74,7 @@ public class Main {
             System.out.println("No phone number found.");
         }
     }
-
+    // Extract name from the text (can get regex confused on uni name vs actual candidate name)
     public static void extractName(String resumeText) {
         Pattern namePattern = Pattern.compile("\\b[A-Z][a-z]+(?:\\s[A-Z][a-z]+)+\\b");
         Matcher nameMatcher = namePattern.matcher(resumeText);
@@ -83,7 +84,7 @@ public class Main {
             System.out.println("No name found.");
         }
     }
-
+    // Extract education from the text (what type of degree and where from)
     public static void extractEducation(String resumeText) {
         Pattern educationPattern = Pattern.compile("(?i)(education|academic background|qualifications|degree)(.*?)(?:experience|skills|work|certifications|$)", Pattern.DOTALL);
         Matcher educationMatcher = educationPattern.matcher(resumeText);
@@ -100,7 +101,7 @@ public class Main {
             System.out.println("No Education found.");
         }
     }
-
+    // Extract work experience from the text (job title and company)
     public static void extractWorkExperience(String resumeText) {
         Pattern workExperiencePattern = Pattern.compile("(?i)(experience|work history|professional experience)(.*?)(?:education|skills|certifications|$)", Pattern.DOTALL);
         Matcher workExperienceMatcher = workExperiencePattern.matcher(resumeText);
@@ -126,7 +127,7 @@ public class Main {
             System.out.println("No Work Experience found.");
         }
     }
-
+    // Read the content of a file
     public static String readFile(String filePath) {
         StringBuilder content = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
