@@ -1,14 +1,21 @@
 import java.io.*;
 import java.util.regex.*;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import java.io.File;
+import java.io.IOException;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+
 
 public class Main {
     public static void main(String[] args) {
         // Resume file path
-        String resumeFilePath = "C:\\Users\\jhg56\\Documents\\resume.txt";
+        String resumeFilePath = "C:\\Users\\jhg56\\Documents\\resumeWORD.docx";
 
         // List of job description file paths
         String[] jobDescriptionFiles = {
-                "C:\\Users\\jhg56\\Documents\\job_description.txt",
+                "C:\\Users\\jhg56\\Documents\\job_descriptionPDF.pdf",
                 "C:\\Users\\jhg56\\Documents\\job_description2.txt",
                 "C:\\Users\\jhg56\\Documents\\job_description3.txt"
         };
@@ -52,6 +59,24 @@ public class Main {
             }
         }
     }
+
+    public static String extractTextFromPDF(String pdfPath) throws IOException {
+        PDDocument document = PDDocument.load(new File(pdfPath));
+        PDFTextStripper stripper = new PDFTextStripper();
+        String text = stripper.getText(document);
+        document.close();
+        return text;
+    }
+
+    public static String extractTextFromDOCX(String docxPath) throws IOException {
+        FileInputStream fis = new FileInputStream(docxPath);
+        XWPFDocument document = new XWPFDocument(fis);
+        XWPFWordExtractor extractor = new XWPFWordExtractor(document);
+        String text = extractor.getText();
+        fis.close();
+        return text;
+    }
+
     // Extract email from the text
     public static void extractEmail(String resumeText) {
         Pattern emailPattern = Pattern.compile("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}\\b");
@@ -64,9 +89,7 @@ public class Main {
     }
     // Extract phone number from the text (currently not working)
     public static void extractPhone(String resumeText) {
-        Pattern phonePattern = Pattern.compile(
-                "^((\\+44)|(0)) ?\\d{4} ?\\d{6}$"
-        );
+        Pattern phonePattern = Pattern.compile("\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,4}?\\)?[-.\\s]?\\d{3,4}[-.\\s]?\\d{4,6}");
         Matcher phoneMatcher = phonePattern.matcher(resumeText);
         if (phoneMatcher.find()) {
             System.out.println("Phone number found: " + phoneMatcher.group());
@@ -129,15 +152,33 @@ public class Main {
     }
     // Read the content of a file
     public static String readFile(String filePath) {
+        String fileExtension = filePath.substring(filePath.lastIndexOf(".") + 1).toLowerCase();
+        // Extract text based on whether it is a PDF, DOCX, or TXT file
+        try {
+            return switch (fileExtension) {
+                case "pdf" -> extractTextFromPDF(filePath);
+                case "docx" -> extractTextFromDOCX(filePath);
+                case "txt" ->
+                        readTextFile(filePath);
+                default -> {
+                    System.out.println("Unsupported file type: " + fileExtension);
+                    yield null;
+                }
+            };
+        } catch (IOException e) {
+            System.out.println("Error reading file: " + e.getMessage());
+            return null;
+        }
+    }
+
+// Read the content of a text file
+    private static String readTextFile(String filePath) throws IOException {
         StringBuilder content = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = br.readLine()) != null) {
                 content.append(line).append("\n");
             }
-        } catch (IOException e) {
-            System.out.println("Error reading file: " + e.getMessage());
-            return null;
         }
         return content.toString();
     }
