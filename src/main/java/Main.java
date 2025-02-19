@@ -2,30 +2,28 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-
 import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 public class Main {
     public static void main(String[] args) {
-        DialogManager dialogManager = new DialogManager();
+        DialogManager fileHandler = new DialogManager();
 
-        // Ask user for resume file path
-        String resumeFilePath = dialogManager.askResumeFilePath();
-        String resumeText = readFile(resumeFilePath);
+        // Get resume file path
+        String resumeFile = fileHandler.getResume();
+        String resumeText = readFile(resumeFile);
 
-        // Ask user for job description file paths
-        String[] jobDescriptionFiles = dialogManager.askJobDescriptionFilePaths();
+        // Get job description file paths or manual descriptions
+        String[] jobDescriptions = fileHandler.getJobDescriptions();
 
-        // Ask for confirmation before starting analysis
-        if (!dialogManager.confirmStartAnalysis()) {
+        // Confirm before starting analysis
+        if (!fileHandler.start()) {
             System.out.println("Analysis cancelled.");
             return;
         }
 
-        // Extracts the data from the resume
+        // Extract data from resume
         if (resumeText != null) {
             extractSkills(resumeText, "Resume");
             extractEmail(resumeText);
@@ -38,18 +36,21 @@ public class Main {
         }
 
         // Extract skills from job descriptions
-        for (String jobDescriptionFile : jobDescriptionFiles) {
-            String jobDescriptionText = readFile(jobDescriptionFile.trim());
-            if (jobDescriptionText != null) {
-                System.out.println("\n--- Processing " + jobDescriptionFile + " ---");
-                extractSkills(jobDescriptionText, "Job Description");
+        for (String jobDescription : jobDescriptions) {
+            if (jobDescription.startsWith("file:")) {
+                String jobDescriptionText = readFile(jobDescription.substring(5).trim());
+                if (jobDescriptionText != null) {
+                    System.out.println("\n--- Processing " + jobDescription + " ---");
+                    extractSkills(jobDescriptionText, "Job Description");
+                } else {
+                    System.out.println("Failed to read: " + jobDescription);
+                }
             } else {
-                System.out.println("Failed to read: " + jobDescriptionFile);
+                System.out.println("\n--- Processing Manual Job Description ---");
+                extractSkills(jobDescription, "Job Description");
             }
         }
     }
-
-
 
 
 
@@ -193,5 +194,3 @@ public class Main {
         return content.toString();
     }
 }
-
-
