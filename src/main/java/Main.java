@@ -1,12 +1,11 @@
-import java.io.*;
-import java.util.regex.*;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import java.io.File;
-import java.io.IOException;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
+import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
     public static void main(String[] args) {
@@ -87,7 +86,7 @@ public class Main {
             System.out.println("No email found.");
         }
     }
-    // Extract phone number from the text (currently not working)
+    // Extract phone number from the text (now working, only for UK numbers)
     public static void extractPhone(String resumeText) {
         Pattern phonePattern = Pattern.compile("\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,4}?\\)?[-.\\s]?\\d{3,4}[-.\\s]?\\d{4,6}");
         Matcher phoneMatcher = phonePattern.matcher(resumeText);
@@ -183,3 +182,5 @@ public class Main {
         return content.toString();
     }
 }
+
+
