@@ -7,20 +7,25 @@ import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class Main {
     public static void main(String[] args) {
-        // Resume file path
-        String resumeFilePath = "C:\\Users\\jhg56\\Documents\\resumeWORD.docx";
+        DialogManager dialogManager = new DialogManager();
 
-        // List of job description file paths
-        String[] jobDescriptionFiles = {
-                "C:\\Users\\jhg56\\Documents\\job_descriptionPDF.pdf",
-                "C:\\Users\\jhg56\\Documents\\job_description2.txt",
-                "C:\\Users\\jhg56\\Documents\\job_description3.txt"
-        };
-
+        // Ask user for resume file path
+        String resumeFilePath = dialogManager.askResumeFilePath();
         String resumeText = readFile(resumeFilePath);
-        // Extract skills, email, phone, name, education, and work experience from the resume
+
+        // Ask user for job description file paths
+        String[] jobDescriptionFiles = dialogManager.askJobDescriptionFilePaths();
+
+        // Ask for confirmation before starting analysis
+        if (!dialogManager.confirmStartAnalysis()) {
+            System.out.println("Analysis cancelled.");
+            return;
+        }
+
+        // Extracts the data from the resume
         if (resumeText != null) {
             extractSkills(resumeText, "Resume");
             extractEmail(resumeText);
@@ -31,9 +36,10 @@ public class Main {
         } else {
             System.out.println("Failed to read the resume.");
         }
-        // Extract skills from each job description file
+
+        // Extract skills from job descriptions
         for (String jobDescriptionFile : jobDescriptionFiles) {
-            String jobDescriptionText = readFile(jobDescriptionFile);
+            String jobDescriptionText = readFile(jobDescriptionFile.trim());
             if (jobDescriptionText != null) {
                 System.out.println("\n--- Processing " + jobDescriptionFile + " ---");
                 extractSkills(jobDescriptionText, "Job Description");
@@ -42,6 +48,11 @@ public class Main {
             }
         }
     }
+
+
+
+
+
     // A list of skills to extract from the text
     public static void extractSkills(String text, String sourceType) {
         String[] skills = {"Java", "Python", "C++", "SQL", "JavaScript", "PHP", "HTML", "Git", "AWS", "Docker"};
