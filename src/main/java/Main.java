@@ -13,6 +13,7 @@ public class Main {
         // Get job description file paths or manual descriptions
         String[] jobDescriptions = fileHandler.getJobDescriptions();
 
+
         // Confirm before starting analysis
         if (!fileHandler.start()) {
             System.out.println("Analysis cancelled.");
@@ -31,15 +32,23 @@ public class Main {
             System.out.println("Failed to read the resume.");
         }
 
+        System.out.println("Job Descriptions Loaded:");
+        for (String job : jobDescriptions) {
+            System.out.println("- " + job);
+        }
+
+
         // Extract skills from job descriptions
         for (String jobDescription : jobDescriptions) {
             if (jobDescription.startsWith("file:")) {
                 String jobDescriptionText = Fileutils.readFile(jobDescription.substring(5).trim());  // Using Fileutils.readFile() here
-                if (jobDescriptionText != null) {
+                if (jobDescriptionText != null && !jobDescriptionText.trim().isEmpty()) {
                     System.out.println("\n--- Processing Job Description from file paths ---");
                     extractSkills(jobDescriptionText, "Job Description");
                 } else {
-                    System.out.println("Failed to read: " + jobDescription);
+                    System.out.println("Failed to read or file is empty: " + jobDescription);
+                    System.out.println("\n--- Processing Manual Job Description ---");
+                    extractSkills(jobDescription, "Job Description");  // Treat as manual input
                 }
             } else {
                 // This ensures that manual input doesn't get mixed with file paths
@@ -49,7 +58,7 @@ public class Main {
         }
     }
 
-    // A list of skills to extract from the text
+        // A list of skills to extract from the text
     public static void extractSkills(String text, String sourceType) {
         String[] skills = {"Java", "Python", "C++", "SQL", "JavaScript", "PHP", "HTML", "Git", "AWS", "Docker"};
 
@@ -65,6 +74,8 @@ public class Main {
             }
         }
     }
+
+    //important bug to fix will likely not be past this point
 
     // Extract email from the text
     public static void extractEmail(String resumeText) {
