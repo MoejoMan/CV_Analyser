@@ -8,8 +8,6 @@ public class Main {
 
     public static void main(String[] args) {
         DialogManager fileHandler = new DialogManager();
-
-        // Get multiple resumes
         List<String> resumeFiles = fileHandler.getResumes();
 
         String[] jobDescriptions = fileHandler.getJobDescriptions();
@@ -28,7 +26,6 @@ public class Main {
             String resumeText = Fileutils.readFile(resumeFile);
 
             if (resumeText != null) {
-                // Process each resume
                 System.out.println("\nProcessing Resume: " + resumeFile);
                 extractSkills(resumeText, "Resume");
                 extractEmail(resumeText);
@@ -148,5 +145,3 @@ public static void extractEmail(String resumeText) {
         }
     }
 }
-
-//test
