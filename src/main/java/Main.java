@@ -2,6 +2,7 @@ import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.List;
+import java.sql.*;
 
 public class Main {
     public static String[] skills = {"Java", "Python", "C++", "C#", "SQL", "JavaScript", "PHP", "HTML", "Git", "AWS", "Docker", "Command Line", "Linux", "Shell", "CMD"};
@@ -11,6 +12,7 @@ public class Main {
         List<String> resumeFiles = fileHandler.getResumes();
 
         String[] jobDescriptions = fileHandler.getJobDescriptions();
+        DatabaseManager.createSchema();
 
         if (!fileHandler.start()) {
             System.out.println("Analysis cancelled.");
@@ -27,7 +29,7 @@ public class Main {
 
             if (resumeText != null) {
                 System.out.println("\nProcessing Resume: " + resumeFile);
-                extractSkills(resumeText, "Resume");
+                extractSkills(resumeText);
                 extractEmail(resumeText);
                 extractPhone(resumeText);
                 extractName(resumeText);
@@ -40,8 +42,9 @@ public class Main {
                     if (jobFile.exists() && jobFile.isFile()) {
                         String jobDescriptionText = Fileutils.readFile(jobDescription.trim());
                         if (jobDescriptionText != null && !jobDescriptionText.trim().isEmpty()) {
+                            insertResumeIntoDB(resumeText);
                             System.out.println("\n--- Processing Job Description from file ---");
-                            extractSkills(jobDescriptionText, "Job Description");
+                            extractSkills(jobDescriptionText);
 
                             double matchPercentage = RankingsManager.calculateSkillMatch(resumeText, jobDescriptionText, skills);
                             System.out.printf("Skill Match Percentage for Job Description file: %.2f%%\n", matchPercentage);
@@ -50,7 +53,7 @@ public class Main {
                         }
                     } else {
                         System.out.println("\n--- Processing Manual Job Description ---");
-                        extractSkills(jobDescription, "Job Description");
+                        extractSkills(jobDescription);
 
                         double matchPercentage = RankingsManager.calculateSkillMatch(resumeText, jobDescription, skills);
                         System.out.printf("Skill Match Percentage for Manual Description: %.2f%%\n", matchPercentage);
@@ -62,47 +65,59 @@ public class Main {
         }
     }
 
-    public static void extractSkills(String text, String sourceType) {
-        System.out.println("Extracting skills from " + sourceType + "...");
-
+    public static String extractSkills(String resumeText) {
+        StringBuilder skillsFound = new StringBuilder();
         for (String skill : skills) {
-            if (text.contains(skill)) {
-                System.out.println(skill + " found in " + sourceType);
+            if (resumeText.contains(skill)) {
+                skillsFound.append(skill).append(", ");
+                System.out.println(skill + " found in Resume");
             }
         }
+        if (!skillsFound.isEmpty()) {
+            String skillsString = skillsFound.toString();
+            System.out.println("Skills found: " + skillsString);
+            return skillsString;
+        }
+        System.out.println("No skills found.");
+        return "No skills found.";
     }
 
-public static void extractEmail(String resumeText) {
+    public static String extractEmail(String resumeText) {
         Pattern emailPattern = Pattern.compile("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}\\b");
         Matcher emailMatcher = emailPattern.matcher(resumeText);
         if (emailMatcher.find()) {
-            System.out.println("Email found: " + emailMatcher.group());
-        } else {
-            System.out.println("No email found.");
+            String email = emailMatcher.group();
+            System.out.println("Email found: " + email);
+            return email;
         }
+        return "No email found.";
     }
 
-    public static void extractPhone(String resumeText) {
+    public static String extractPhone(String resumeText) {
         Pattern phonePattern = Pattern.compile("\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,4}?\\)?[-.\\s]?\\d{3,4}[-.\\s]?\\d{4,6}");
         Matcher phoneMatcher = phonePattern.matcher(resumeText);
         if (phoneMatcher.find()) {
-            System.out.println("Phone number found: " + phoneMatcher.group());
-        } else {
-            System.out.println("No phone number found.");
+            String phone = phoneMatcher.group();
+            System.out.println("Phone number found: " + phone);
+            return phone;
         }
+        System.out.println("No phone number found.");
+        return "No phone number found.";
     }
 
-    public static void extractName(String resumeText) {
+    public static String extractName(String resumeText) {
         Pattern namePattern = Pattern.compile("\\b[A-Z][a-z]+(?:\\s[A-Z][a-z]+)+\\b");
         Matcher nameMatcher = namePattern.matcher(resumeText);
         if (nameMatcher.find()) {
-            System.out.println("Name found: " + nameMatcher.group());
-        } else {
-            System.out.println("No name found.");
+            String name = nameMatcher.group();
+            System.out.println("Name found: " + name);
+            return name;
         }
+        System.out.println("No name found.");
+        return "No name found.";
     }
 
-    public static void extractEducation(String resumeText) {
+    public static String extractEducation(String resumeText) {
         Pattern educationPattern = Pattern.compile("(?i)(education|academic background|qualifications|degree)(.*?)(?:experience|skills|work|certifications|$)", Pattern.DOTALL);
         Matcher educationMatcher = educationPattern.matcher(resumeText);
         if (educationMatcher.find()) {
@@ -117,9 +132,28 @@ public static void extractEmail(String resumeText) {
         } else {
             System.out.println("No Education found.");
         }
+        return "No Education found.";
     }
 
-    public static void extractWorkExperience(String resumeText) {
+    public static void insertResumeIntoDB(String resumeText) {
+        String insertResumeSQL = "INSERT INTO resumes (name, email, phone, skills, education, work_experience) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseManager.connect(); PreparedStatement pstmt = conn.prepareStatement(insertResumeSQL)) {
+            pstmt.setString(1, extractName(resumeText));  // Assume extract methods are available
+            pstmt.setString(2, extractEmail(resumeText));
+            pstmt.setString(3, extractPhone(resumeText));
+            pstmt.setString(4, extractSkills(resumeText));
+            pstmt.setString(5, extractEducation(resumeText));
+            pstmt.setString(6, extractWorkExperience(resumeText));
+
+            pstmt.executeUpdate();
+            System.out.println("Resume inserted into database.");
+        } catch (SQLException e) {
+            System.out.println("Error inserting resume into database: " + e.getMessage());
+        }
+    }
+
+    public static String extractWorkExperience(String resumeText) {
         Pattern workExperiencePattern = Pattern.compile("(?i)(experience|work history|professional experience)(.*?)(?:education|skills|certifications|$)", Pattern.DOTALL);
         Matcher workExperienceMatcher = workExperiencePattern.matcher(resumeText);
         if (workExperienceMatcher.find()) {
@@ -140,8 +174,10 @@ public static void extractEmail(String resumeText) {
             while (companyMatcher.find()) {
                 System.out.println("Company: " + companyMatcher.group(1));
             }
+            return workExperienceSection;
         } else {
             System.out.println("No Work Experience found.");
         }
+        return "No Work Experience found.";
     }
 }
