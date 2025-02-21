@@ -40,20 +40,19 @@ public class Main {
 
         // Extract skills from job descriptions
         for (String jobDescription : jobDescriptions) {
-            if (jobDescription.startsWith("file:")) {
-                String jobDescriptionText = Fileutils.readFile(jobDescription.substring(5).trim());  // Using Fileutils.readFile() here
+            File jobFile = new File(jobDescription.trim());
+
+            if (jobFile.exists() && jobFile.isFile()) {  // Check if it's a real file
+                String jobDescriptionText = Fileutils.readFile(jobDescription.trim());
                 if (jobDescriptionText != null && !jobDescriptionText.trim().isEmpty()) {
-                    System.out.println("\n--- Processing Job Description from file paths ---");
+                    System.out.println("\n--- Processing Job Description from file ---");
                     extractSkills(jobDescriptionText, "Job Description");
                 } else {
                     System.out.println("Failed to read or file is empty: " + jobDescription);
-                    System.out.println("\n--- Processing Manual Job Description ---");
-                    extractSkills(jobDescription, "Job Description");  // Treat as manual input
                 }
             } else {
-                // This ensures that manual input doesn't get mixed with file paths
                 System.out.println("\n--- Processing Manual Job Description ---");
-                extractSkills(jobDescription, "Job Description");
+                extractSkills(jobDescription, "Job Description");  // Treat as manual input
             }
         }
     }
