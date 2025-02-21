@@ -1,35 +1,22 @@
 import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.List;
 
 public class Main {
+    public static String[] skills = {"Java", "Python", "C++", "C#", "SQL", "JavaScript", "PHP", "HTML", "Git", "AWS", "Docker", "Command Line", "Linux", "Shell", "CMD"};
+
     public static void main(String[] args) {
         DialogManager fileHandler = new DialogManager();
 
-        // Get resume file path
-        String resumeFile = fileHandler.getResume();
-        String resumeText = Fileutils.readFile(resumeFile);  // Using Fileutils.readFile() here
+        // Get multiple resumes
+        List<String> resumeFiles = fileHandler.getResumes();
 
-        // Get job description file paths or manual descriptions
         String[] jobDescriptions = fileHandler.getJobDescriptions();
 
-
-        // Confirm before starting analysis
         if (!fileHandler.start()) {
             System.out.println("Analysis cancelled.");
             return;
-        }
-
-        // Extract data from resume
-        if (resumeText != null) {
-            extractSkills(resumeText, "Resume");
-            extractEmail(resumeText);
-            extractPhone(resumeText);
-            extractName(resumeText);
-            extractEducation(resumeText);
-            extractWorkExperience(resumeText);
-        } else {
-            System.out.println("Failed to read the resume.");
         }
 
         System.out.println("Job Descriptions Loaded:");
@@ -37,47 +24,58 @@ public class Main {
             System.out.println("- " + job);
         }
 
+        for (String resumeFile : resumeFiles) {
+            String resumeText = Fileutils.readFile(resumeFile);
 
-        // Extract skills from job descriptions
-        for (String jobDescription : jobDescriptions) {
-            File jobFile = new File(jobDescription.trim());
+            if (resumeText != null) {
+                // Process each resume
+                System.out.println("\nProcessing Resume: " + resumeFile);
+                extractSkills(resumeText, "Resume");
+                extractEmail(resumeText);
+                extractPhone(resumeText);
+                extractName(resumeText);
+                extractEducation(resumeText);
+                extractWorkExperience(resumeText);
 
-            if (jobFile.exists() && jobFile.isFile()) {  // Check if it's a real file
-                String jobDescriptionText = Fileutils.readFile(jobDescription.trim());
-                if (jobDescriptionText != null && !jobDescriptionText.trim().isEmpty()) {
-                    System.out.println("\n--- Processing Job Description from file ---");
-                    extractSkills(jobDescriptionText, "Job Description");
-                } else {
-                    System.out.println("Failed to read or file is empty: " + jobDescription);
+                for (String jobDescription : jobDescriptions) {
+                    File jobFile = new File(jobDescription.trim());
+
+                    if (jobFile.exists() && jobFile.isFile()) {
+                        String jobDescriptionText = Fileutils.readFile(jobDescription.trim());
+                        if (jobDescriptionText != null && !jobDescriptionText.trim().isEmpty()) {
+                            System.out.println("\n--- Processing Job Description from file ---");
+                            extractSkills(jobDescriptionText, "Job Description");
+
+                            double matchPercentage = RankingsManager.calculateSkillMatch(resumeText, jobDescriptionText, skills);
+                            System.out.printf("Skill Match Percentage for Job Description file: %.2f%%\n", matchPercentage);
+                        } else {
+                            System.out.println("Failed to read or file is empty: " + jobDescription);
+                        }
+                    } else {
+                        System.out.println("\n--- Processing Manual Job Description ---");
+                        extractSkills(jobDescription, "Job Description");
+
+                        double matchPercentage = RankingsManager.calculateSkillMatch(resumeText, jobDescription, skills);
+                        System.out.printf("Skill Match Percentage for Manual Description: %.2f%%\n", matchPercentage);
+                    }
                 }
             } else {
-                System.out.println("\n--- Processing Manual Job Description ---");
-                extractSkills(jobDescription, "Job Description");  // Treat as manual input
+                System.out.println("Failed to read the resume: " + resumeFile);
             }
         }
     }
 
-        // A list of skills to extract from the text
     public static void extractSkills(String text, String sourceType) {
-        String[] skills = {"Java", "Python", "C++", "SQL", "JavaScript", "PHP", "HTML", "Git", "AWS", "Docker"};
-
-        System.out.println("Extracting skills from " + sourceType + ":");
+        System.out.println("Extracting skills from " + sourceType + "...");
 
         for (String skill : skills) {
-            Pattern pattern = Pattern.compile("\\b" + skill + "\\b", Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(text);
-            if (matcher.find()) {
-                System.out.println("Found skill: " + skill);
-            } else {
-                System.out.println("Skill not found: " + skill);
+            if (text.contains(skill)) {
+                System.out.println(skill + " found in " + sourceType);
             }
         }
     }
 
-    //important bug to fix will likely not be past this point
-
-    // Extract email from the text
-    public static void extractEmail(String resumeText) {
+public static void extractEmail(String resumeText) {
         Pattern emailPattern = Pattern.compile("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}\\b");
         Matcher emailMatcher = emailPattern.matcher(resumeText);
         if (emailMatcher.find()) {
@@ -87,7 +85,6 @@ public class Main {
         }
     }
 
-    // Extract phone number from the text (now working, only for UK numbers)
     public static void extractPhone(String resumeText) {
         Pattern phonePattern = Pattern.compile("\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,4}?\\)?[-.\\s]?\\d{3,4}[-.\\s]?\\d{4,6}");
         Matcher phoneMatcher = phonePattern.matcher(resumeText);
@@ -98,7 +95,6 @@ public class Main {
         }
     }
 
-    // Extract name from the text (can get regex confused on uni name vs actual candidate name)
     public static void extractName(String resumeText) {
         Pattern namePattern = Pattern.compile("\\b[A-Z][a-z]+(?:\\s[A-Z][a-z]+)+\\b");
         Matcher nameMatcher = namePattern.matcher(resumeText);
@@ -109,7 +105,6 @@ public class Main {
         }
     }
 
-    // Extract education from the text (what type of degree and where from)
     public static void extractEducation(String resumeText) {
         Pattern educationPattern = Pattern.compile("(?i)(education|academic background|qualifications|degree)(.*?)(?:experience|skills|work|certifications|$)", Pattern.DOTALL);
         Matcher educationMatcher = educationPattern.matcher(resumeText);
@@ -127,7 +122,6 @@ public class Main {
         }
     }
 
-    // Extract work experience from the text (job title and company)
     public static void extractWorkExperience(String resumeText) {
         Pattern workExperiencePattern = Pattern.compile("(?i)(experience|work history|professional experience)(.*?)(?:education|skills|certifications|$)", Pattern.DOTALL);
         Matcher workExperienceMatcher = workExperiencePattern.matcher(resumeText);

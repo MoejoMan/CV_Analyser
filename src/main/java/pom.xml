@@ -15,7 +15,6 @@
     </properties>
 
     <repositories>
-        <!-- Apache POI repository -->
         <repository>
             <id>apache-repo</id>
             <url>https://repo.maven.apache.org/maven2</url>
@@ -23,38 +22,31 @@
     </repositories>
 
     <dependencies>
-        <!-- Apache POI for DOCX support -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>5.2.1</version>
         </dependency>
-
-        <!-- PDFBox for PDF support -->
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>2.0.27</version>
         </dependency>
 
-        <!-- Ensure you use the correct version of commons-io -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.13.0</version> <!-- Safe version -->
+            <version>2.13.0</version>
         </dependency>
-
-        <!-- commons-compress is already correctly added -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.21</version> <!-- Or the latest stable version -->
+            <version>1.21</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.17.1</version> <!-- Or the latest stable version -->
+            <version>2.17.1</version>
         </dependency>
 
     </dependencies>

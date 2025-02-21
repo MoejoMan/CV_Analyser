@@ -1,4 +1,7 @@
+import java.util.Collections;
 import java.util.Scanner;
+import java.util.List;
+import java.util.ArrayList;
 
 public class DialogManager {
 
@@ -8,22 +11,37 @@ public class DialogManager {
         scanner = new Scanner(System.in);
     }
 
-    // Default file paths
-    private static final String DEFAULT_RESUME = "C:\\Users\\jhg56\\Documents\\resumeWORD.docx";
+    private static final String[] DEFAULT_RESUME = {
+            "C:\\Users\\jhg56\\Documents\\resumeWORD.docx",
+            "C:\\Users\\jhg56\\Documents\\bad_resume.txt",
+            "C:\\Users\\jhg56\\Documents\\good_resume.txt"
+    };
+
     private static final String[] DEFAULT_JOB_DESCRIPTIONS = {
             "C:\\Users\\jhg56\\Documents\\job_descriptionPDF.pdf",
             "C:\\Users\\jhg56\\Documents\\job_description2.txt",
             "C:\\Users\\jhg56\\Documents\\job_description3.txt"
     };
 
-    // Get the resume file path
-    public String getResume() {
-        System.out.println("Enter the resume file path (Press Enter to use default):");
-        String input = scanner.nextLine().trim();
-        return input.isEmpty() ? DEFAULT_RESUME : input;
+    public List<String> getResumes() {
+        List<String> resumes = new ArrayList<>();
+        System.out.println("Enter resume file paths (Press Enter to stop, if none are entered the program will use defaults):");
+
+        while (true) {
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                break;
+            }
+            resumes.add(input);
+        }
+
+        if (resumes.isEmpty()) {
+            Collections.addAll(resumes, DEFAULT_RESUME);
+        }
+
+        return resumes;
     }
 
-    // Get job description file paths
     public String[] getJobDescriptions() {
         System.out.println("Do you want to manually enter a job description or use file paths? (manual/paths)");
         String response = scanner.nextLine().toLowerCase();
@@ -33,14 +51,12 @@ public class DialogManager {
             String manualDescription = scanner.nextLine();
             return new String[]{manualDescription};
         } else {
-            // Use existing file path logic (default or custom)
             System.out.println("Please enter the file paths of the job descriptions, separated by commas (Press Enter to use defaults):");
             String input = scanner.nextLine().trim();
             return input.isEmpty() ? DEFAULT_JOB_DESCRIPTIONS : input.split(",");
         }
     }
 
-    // Confirm if the user wants to start the analysis
     public boolean start() {
         System.out.println("Start analysis? (yes/no)");
         String response = scanner.nextLine().toLowerCase();
